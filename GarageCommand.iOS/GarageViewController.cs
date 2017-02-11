@@ -137,6 +137,7 @@ namespace GarageCommand.iOS
 		{
 			_leftButton.TouchUpInside -= LeftButton_TouchUpInside;
 			_rightButton.TouchUpInside -= RightButton_TouchUpInside;
+			_garageViewModel.PropertyChanged += HandlePropertyChanged;
 			base.ViewWillDisappear(animated);
 		}
 
