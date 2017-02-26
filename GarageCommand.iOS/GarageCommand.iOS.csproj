@@ -118,6 +118,13 @@
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
     <ImageAsset Include="Assets.xcassets\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\garage%402x.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\garage%403x.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\launch750x1334.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\launch640x1136.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\launch640x1136 copy.png" />
+    <ImageAsset Include="Assets.xcassets\LaunchImage.launchimage\launch1242x2208.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -132,10 +139,13 @@
     <Compile Include="AppDelegate.cs" />
     <Compile Include="GarageViewController.cs" />
     <Compile Include="Layout.cs" />
-    <Compile Include="GarageService.cs" />
-    <Compile Include="GarageViewModel.cs" />
-    <Compile Include="Garage.cs" />
-    <Compile Include="ObservableBase.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="LaunchScreen.storyboard" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\launch1242x2208.png" />
+  </ItemGroup>
+  <Import Project="..\GarageCommand.Core\GarageCommand.Core.projitems" Label="Shared" Condition="Exists('..\GarageCommand.Core\GarageCommand.Core.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

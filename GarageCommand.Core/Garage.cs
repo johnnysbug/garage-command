@@ -1,4 +1,4 @@
-﻿namespace GarageCommand.iOS
+﻿namespace GarageCommand.Core
 {
 	public class Garages
 	{

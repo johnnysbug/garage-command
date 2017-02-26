@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>GarageCommand</string>
+	<string>Garage Command</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.leankit.garagecommand</string>
 	<key>CFBundleShortVersionString</key>
@@ -33,5 +33,7 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>XSLaunchImageAssets</key>
+	<string>Assets.xcassets/LaunchImage.launchimage</string>
 </dict>
 </plist>

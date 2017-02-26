@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System;
 
-namespace GarageCommand.iOS
+namespace GarageCommand.Core
 {
 	/// <summary>
 	/// A thin base class that provides a simple property change notification mechanism so

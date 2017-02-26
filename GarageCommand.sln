@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GarageCommand.iOS", "GarageCommand.iOS\GarageCommand.iOS.csproj", "{73870A2A-419C-4AE2-AA86-C8CDB2E9CE20}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GarageCommand.Core", "GarageCommand.Core\GarageCommand.Core.shproj", "{16F1E532-196E-47F0-B6BB-03FE586A1830}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
