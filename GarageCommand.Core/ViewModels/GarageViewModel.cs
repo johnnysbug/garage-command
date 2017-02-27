@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using GarageCommand.Core.Services;
 
@@ -60,6 +61,7 @@ namespace GarageCommand.Core.ViewModels
 
 		public async Task Initialize()
 		{
+			Console.WriteLine($"ViewModel Initialize");
 			Status = CONNECTING_STATUS;
 			await _service.Connect();
 			Status = _service.IsConnected() ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
@@ -67,6 +69,7 @@ namespace GarageCommand.Core.ViewModels
 
 		public void Disconnect()
 		{
+			Console.WriteLine($"ViewModel Disconnect");
 			_service.Disconnect();
 		}
 
@@ -86,6 +89,7 @@ namespace GarageCommand.Core.ViewModels
 		{
 			if (disposing)
 			{
+				Console.WriteLine($"Disposing {GetType().Name}");
 				if (_service != null)
 				{
 					_service.Disconnect();
@@ -98,6 +102,7 @@ namespace GarageCommand.Core.ViewModels
 
 		void HandleStatusChanged(object sender, GaragesChangedEventArgs e)
 		{
+			Console.WriteLine($"ViewModel handling StatusChanged event with [{e.Garages}]");
 			Garages = e.Garages;
 			IsConnected = _service.IsConnected();
 			Status = _service.IsConnected() ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
@@ -105,6 +110,7 @@ namespace GarageCommand.Core.ViewModels
 
 		void HandleConnectionChanged(object sender, ConnectionStatusEventArgs e)
 		{
+			Console.WriteLine($"ViewModel handling ConnectionChanged event with [IsConnected={e.IsConnected}]");
 			IsConnected = e.IsConnected;
 			Status = IsConnected ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
 		}

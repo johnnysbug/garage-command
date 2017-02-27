@@ -191,6 +191,8 @@ namespace GarageCommand.iOS
 
 		void HandlePropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			Console.WriteLine($"ViewController handling PropertyChanged for [{e.PropertyName}]");
+
 			BeginInvokeOnMainThread(() =>
 			{
 				switch (e.PropertyName)
@@ -254,6 +256,8 @@ namespace GarageCommand.iOS
 
 		void UpdateUI()
 		{
+			Console.WriteLine($"ViewController Updating UI");
+
 			UIView.AnimateNotify(0.4d, 0.0d, UIViewAnimationOptions.CurveEaseInOut, () =>
 			{
 				_leftStatus.Text = _garageViewModel.LeftGarageStatus;
@@ -285,6 +289,7 @@ namespace GarageCommand.iOS
 		{
 			if (disposing)
 			{
+				Console.WriteLine($"Disposing {GetType().Name}");
 				if (_garageViewModel != null)
 				{
 					_garageViewModel.Dispose();

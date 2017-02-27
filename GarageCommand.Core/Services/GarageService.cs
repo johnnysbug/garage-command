@@ -81,29 +81,33 @@ namespace GarageCommand.Core.Services
 
 			try
 			{
+				Console.WriteLine($"Creating client for [{ipAddress}]");
 				_connectingTimer.Start();
 				_client = await MqttClient.CreateAsync(ipAddress, _config);
 				_client.Disconnected += HandleDisconnected;
-				Console.WriteLine($"Connecting to {ipAddress}");
 
+				Console.WriteLine($"Connecting client to [{ipAddress}]");
 				await _client.ConnectAsync(new MqttClientCredentials("yay"), null, true);
 				_connectingTimer.Stop();
+				Console.WriteLine($"Subscribing client to [/garage/status]");
 				await _client.SubscribeAsync("/garage/status", MqttQualityOfService.AtMostOnce);
+				Console.WriteLine($"Subscribing client to [/garage/response/{_deviceId}]");
 				await _client.SubscribeAsync($"/garage/response/{_deviceId}", MqttQualityOfService.AtMostOnce);
 
 				var statusObserver = Observer.Create<MqttApplicationMessage>((message) =>
 				{
 					var payload = Encoding.ASCII.GetString(message.Payload);
 					var garages = JsonConvert.DeserializeObject<Garages>(payload);
-					Console.WriteLine($"Received message on topic [{message.Topic}] with [{garages}]");
+					Console.WriteLine($"Topic [{message.Topic}] Payload [{garages}]");
 					GaragesChanged?.Invoke(this, new GaragesChangedEventArgs(garages));
 				}, (exception) =>
 				{
-					Console.WriteLine($"Shit broke: {exception.Message}");
+					Console.WriteLine($"Exception: {exception.Message}");
 				});
 				_client.MessageStream.SubscribeSafe(statusObserver);
 
 				var requestMessage = new MqttApplicationMessage($"/garage/request/{_deviceId}", new byte[] { });
+				Console.WriteLine($"Publishing message to [/garage/request/{_deviceId}]");
 				await _client.PublishAsync(requestMessage, MqttQualityOfService.AtMostOnce);
 			}
 			catch (Exception ex)
@@ -171,6 +175,7 @@ namespace GarageCommand.Core.Services
 
 		public void Dispose()
 		{
+			Console.WriteLine($"Disposing {GetType().Name}");
 			if (_client != null)
 			{
 				_client.Disconnected -= HandleDisconnected;
@@ -196,6 +201,8 @@ namespace GarageCommand.Core.Services
 
 		void HandleReachabilityChanged(NetworkReachabilityFlags flags)
 		{
+			Console.WriteLine($"Reachability Changed Event with {flags}");
+
 			if (flags.HasFlag(NetworkReachabilityFlags.Reachable) && !IsConnected())
 			{
 				Task.Factory.StartNew(async () => await Connect());
@@ -212,6 +219,7 @@ namespace GarageCommand.Core.Services
 
 		void HandledTimerElapsed(object sender, ElapsedEventArgs e)
 		{
+			Console.WriteLine($"Handling Timer Elapsed event");
 			_connectingTimer.Stop();
 			if (!IsConnected())
 			{

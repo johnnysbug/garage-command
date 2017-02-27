@@ -21,6 +21,11 @@
 			var right = RightGarage == null ? 0 : RightGarage.GetHashCode();
 			return left ^ right;
 		}
+
+		public override string ToString()
+		{
+			return string.Format("[LeftGarage={0}, RightGarage={1}]", LeftGarage.Status, RightGarage.Status);
+		}
 	}
 
 	public class Garage
