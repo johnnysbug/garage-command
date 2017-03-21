@@ -64,7 +64,7 @@ namespace GarageCommand.Core.ViewModels
 			Console.WriteLine($"ViewModel Initialize");
 			Status = CONNECTING_STATUS;
 			await _service.Connect();
-			Status = _service.IsConnected() ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
+			Status = _service.IsConnected ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
 		}
 
 		public void Disconnect()
@@ -104,8 +104,8 @@ namespace GarageCommand.Core.ViewModels
 		{
 			Console.WriteLine($"ViewModel handling StatusChanged event with [{e.Garages}]");
 			Garages = e.Garages;
-			IsConnected = _service.IsConnected();
-			Status = _service.IsConnected() ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
+			IsConnected = _service.IsConnected;
+			Status = _service.IsConnected ? CONNECTED_STATUS : NOT_CONNECTED_STATUS;
 		}
 
 		void HandleConnectionChanged(object sender, ConnectionStatusEventArgs e)

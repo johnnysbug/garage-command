@@ -24,7 +24,10 @@ namespace GarageCommand.Core.Services
 			{
 				var flags = NetworkReachabilityFlags.Reachable;
 				_reachability.TryGetFlags(out flags);
-				return flags.HasFlag(NetworkReachabilityFlags.Reachable) | flags.HasFlag(NetworkReachabilityFlags.IsDirect);
+				Console.WriteLine($"Retrieving IsReachable [{flags}]");
+				var hasFlag = flags.HasFlag(NetworkReachabilityFlags.Reachable) | flags.HasFlag(NetworkReachabilityFlags.IsDirect);
+				Console.WriteLine($"Is Reachable? {hasFlag}");
+				return hasFlag;
 			}
 		}
 
@@ -89,10 +92,18 @@ namespace GarageCommand.Core.Services
 				Console.WriteLine($"Connecting client to [{ipAddress}]");
 				await _client.ConnectAsync(new MqttClientCredentials("yay"), null, true);
 				_connectingTimer.Stop();
-				Console.WriteLine($"Subscribing client to [/garage/status]");
-				await _client.SubscribeAsync("/garage/status", MqttQualityOfService.AtMostOnce);
-				Console.WriteLine($"Subscribing client to [/garage/response/{_deviceId}]");
-				await _client.SubscribeAsync($"/garage/response/{_deviceId}", MqttQualityOfService.AtMostOnce);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Connecting failed due to [{ex.Message}]");
+				_connectingTimer.Stop();
+				ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected));
+			}
+
+			if (_client.IsConnected)
+			{
+				await TryToSubscribe("/garage/status");
+				await TryToSubscribe($"/garage/response/{_deviceId}");
 
 				var statusObserver = Observer.Create<MqttApplicationMessage>((message) =>
 				{
@@ -110,13 +121,6 @@ namespace GarageCommand.Core.Services
 				Console.WriteLine($"Publishing message to [/garage/request/{_deviceId}]");
 				await _client.PublishAsync(requestMessage, MqttQualityOfService.AtMostOnce);
 			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Connecting failed due to [{ex.Message}]");
-				_connectingTimer.Stop();
-				ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected()));
-			}
-
 		}
 
 		public void Disconnect()
@@ -145,19 +149,18 @@ namespace GarageCommand.Core.Services
 				}
 				else
 				{
-					ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected()));
+					ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected));
 				}
 			});
 		}
 
-		public bool IsConnected()
-		{
-			return (_reachabilityManager?.IsReachable ?? false) && (_client?.IsConnected ?? false);
-		}
+		public bool IsReachable => _reachabilityManager?.IsReachable ?? false;
+
+		public bool IsConnected => _client?.IsConnected ?? false;
 
 		public async Task Toggle(string side)
 		{
-			if (IsConnected())
+			if (IsConnected)
 			{
 				Console.WriteLine($"Toggling {side} garage");
 				try
@@ -193,27 +196,48 @@ namespace GarageCommand.Core.Services
 			GC.SuppressFinalize(this);
 		}
 
+		async Task TryToSubscribe(string topic)
+		{
+			var isSubscribed = false;
+			var retries = 3;
+			while (!isSubscribed && retries != 0)
+			{
+				try
+				{
+					Console.WriteLine($"Subscribing client to [{topic}]");
+					await _client.SubscribeAsync(topic, MqttQualityOfService.AtMostOnce);
+					isSubscribed = true;
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Subscribing failed due to [{ex.Message}]");
+					isSubscribed = false;
+				}
+				retries--;
+			}
+		}
+
 		void HandleDisconnected(object sender, MqttEndpointDisconnected e)
 		{
 			Console.WriteLine($"Handling Disconnected Event because of {e.Message}");
-			ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected()));
+			ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected));
 		}
 
 		void HandleReachabilityChanged(NetworkReachabilityFlags flags)
 		{
 			Console.WriteLine($"Reachability Changed Event with {flags}");
 
-			if (flags.HasFlag(NetworkReachabilityFlags.Reachable) && !IsConnected())
+			if (flags.HasFlag(NetworkReachabilityFlags.Reachable) && !IsConnected)
 			{
 				Task.Factory.StartNew(async () => await Connect());
 			}
-			else if (!flags.HasFlag(NetworkReachabilityFlags.Reachable) && IsConnected())
+			else if (!flags.HasFlag(NetworkReachabilityFlags.Reachable) && IsConnected)
 			{
 				Disconnect();
 			}
 			else
 			{
-				ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected()));
+				ConnectionChanged?.Invoke(this, new ConnectionStatusEventArgs(IsConnected));
 			}
 		}
 
@@ -221,9 +245,14 @@ namespace GarageCommand.Core.Services
 		{
 			Console.WriteLine($"Handling Timer Elapsed event");
 			_connectingTimer.Stop();
-			if (!IsConnected())
+			if (IsReachable && !IsConnected)
 			{
 				Disconnect();
+				if (_client != null)
+				{
+					_client.Disconnected -= HandleDisconnected;
+				}
+				Task.Factory.StartNew(async () => await Connect());
 			}
 		}
 	}

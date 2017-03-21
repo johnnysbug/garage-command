@@ -24,6 +24,8 @@ namespace GarageCommand.iOS
 		UILabel _rightLetter;
 		UILabel _rightStatus;
 
+		UIButton _retryButton;
+
 		UILabel _connectionStatus;
 
 		GarageViewModel _garageViewModel;
@@ -40,6 +42,7 @@ namespace GarageCommand.iOS
 			_buttonStack = new UIStackView();
 			_leftButton = new UIButton(UIButtonType.Custom);
 			_rightButton = new UIButton(UIButtonType.Custom);
+			_retryButton = new UIButton(UIButtonType.Custom);
 			_leftStatus = new UILabel();
 			_rightStatus = new UILabel();
 			_connectionStatus = new UILabel();
